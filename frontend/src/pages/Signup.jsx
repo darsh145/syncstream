@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Auth.css";
 
-function Login() {
+function Signup() {
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
-    rememberMe: false,
+    confirmPassword: "",
+    agreeTerms: false,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,17 +23,28 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Basic validation
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (!formData.agreeTerms) {
+      setError("You must agree to the terms and conditions");
+      return;
+    }
+
     setIsLoading(true);
     setError("");
 
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Login attempt with:", formData);
+      console.log("Signup attempt with:", formData);
       // Here you would typically make an API call to your backend
-      // and handle the response/redirect accordingly
     } catch (err) {
-      setError("Invalid email or password. Please try again.");
+      setError("Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -41,13 +54,26 @@ function Login() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h2>Welcome Back</h2>
-          <p>Sign in to your account to continue</p>
+          <h2>Create Account</h2>
+          <p>Sign up to get started</p>
         </div>
 
         {error && <div className="auth-error">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="John Doe"
+              required
+            />
+          </div>
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -71,6 +97,21 @@ function Login() {
               onChange={handleChange}
               placeholder="••••••••"
               required
+              minLength="8"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="••••••••"
+              required
+              minLength="8"
             />
           </div>
 
@@ -78,26 +119,27 @@ function Login() {
             <div className="remember-me">
               <input
                 type="checkbox"
-                id="rememberMe"
-                name="rememberMe"
-                checked={formData.rememberMe}
+                id="agreeTerms"
+                name="agreeTerms"
+                checked={formData.agreeTerms}
                 onChange={handleChange}
+                required
               />
-              <label htmlFor="rememberMe">Remember me</label>
+              <label htmlFor="agreeTerms">
+                I agree to the <Link to="/terms">Terms of Service</Link> and{" "}
+                <Link to="/privacy">Privacy Policy</Link>
+              </label>
             </div>
-            <Link to="/forgot-password" className="forgot-link">
-              Forgot password?
-            </Link>
           </div>
 
           <button type="submit" className="auth-button" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading ? "Creating Account..." : "Sign Up"}
           </button>
         </form>
 
         <div className="auth-footer">
           <p>
-            Don't have an account? <Link to="/signup">Sign up</Link>
+            Already have an account? <Link to="/login">Sign in</Link>
           </p>
         </div>
       </div>
@@ -105,4 +147,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Signup;
